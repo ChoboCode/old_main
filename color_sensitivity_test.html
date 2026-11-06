@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <meta name="description" content="격자 속에서 색이 살짝 다른 한 칸을 찾는 색 민감도 테스트. 레벨마다 두 색의 차이를 RGB·HSL·Lab 값과 색차 ΔE로 보여 주고, 게임이 끝나면 '내 색 구별 한계'를 숫자로 알려 줍니다." />
+  <meta name="keywords" content="색 민감도, 색차, ΔE, CIELAB, RGB, HSL, 색 구별, 지수함수, 로그 눈금, 수학 활동, AI 수학, 교육용 게임" />
+  <meta name="author" content="황성현" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://tjdgus1121.github.io/color_sensitivity_test.html" />
+
+  <meta property="og:title" content="한 칸의 차이 — 색 민감도 테스트 (ΔE 챌린지)" />
+  <meta property="og:description" content="색이 살짝 다른 한 칸을 찾아라! 레벨이 오를수록 칸은 많아지고 색 차이(ΔE)는 작아집니다. 내 눈의 색 구별 한계를 숫자로 확인해 보세요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tjdgus1121.github.io/color_sensitivity_test.html" />
+  <meta property="og:image" content="https://tjdgus1121.github.io/thumbnail.png" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:site_name" content="인공지능 수학 이미지 탐구 활동" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="한 칸의 차이 — 색 민감도 테스트 (ΔE 챌린지)" />
+  <meta name="twitter:description" content="RGB·HSL·Lab과 색차 ΔE로 알아보는 내 눈의 색 구별 한계." />
+  <meta name="twitter:image" content="https://tjdgus1121.github.io/thumbnail.png" />
+  <meta name="theme-color" content="#3b3f4a" />
+
+  <title>한 칸의 차이 — 색 민감도 테스트 | 인공지능 수학 웹앱</title>
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --page: #eceef2;
+      --card: #ffffff;
+      --ink: #1d2027;
+      --ink2: #4d5260;
+      --muted: #858a96;
+      --line: #dfe2e8;
+      --accent: #3b3f4a;
+      --accent-2: #5b6cff;
+      --good: #0ca30c;
+      --good-text: #006300;
+      --bad: #d03b3b;
+      --board-bg: #808080;           /* 중성 회색: 색 판단을 방해하지 않는 배경 */
+      --radius: 16px;
+      --board: min(94vw, 540px, max(280px, calc(100svh - 250px)));
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    [hidden] { display: none !important; }
+    body {
+      font-family: 'Noto Sans KR', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    button { font-family: inherit; }
+
+    /* ---------- 헤더 ---------- */
+    header.top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px clamp(12px, 3vw, 28px);
+      background: var(--accent); color: #fff;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 9px; flex: none;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 4px; background: rgba(255,255,255,.12);
+    }
+    .brand-mark i { border-radius: 3px; background: #7d8bd6; }
+    .brand-mark i:nth-child(3) { background: #8a97dd; }
+    .brand h1 { font-size: clamp(1rem, 2.6vw, 1.3rem); font-weight: 900; letter-spacing: -0.02em; white-space: nowrap; }
+    .brand p { font-size: .78rem; opacity: .75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .home-link {
+      color: #fff; text-decoration: none; font-size: .85rem; font-weight: 500;
+      padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); white-space: nowrap;
+    }
+    .home-link:hover { background: rgba(255,255,255,.12); }
+
+    /* ---------- 레이아웃 ---------- */
+    main {
+      max-width: 1120px; margin: 0 auto; padding: 14px clamp(10px, 2.5vw, 24px) 40px;
+      display: grid; gap: 16px;
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+    @media (min-width: 940px) {
+      main { grid-template-columns: auto minmax(320px, 1fr); align-items: start; justify-items: stretch; }
+      :root { --board: min(540px, max(320px, calc(100vh - 210px))); }
+    }
+    .play { width: var(--board); display: flex; flex-direction: column; gap: 10px; }
+
+    /* ---------- 상태 표시줄 ---------- */
+    .hud {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    }
+    .hud .cell {
+      background: var(--card); border-radius: 12px; padding: 6px 8px; text-align: center;
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .hud .label { font-size: .7rem; color: var(--muted); font-weight: 500; }
+    .hud .value { font-size: clamp(1.05rem, 3.6vw, 1.35rem); font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+    .hearts { letter-spacing: 1px; }
+    .hearts .off { opacity: .18; filter: grayscale(1); }
+
+    .timer {
+      position: relative; height: 12px; border-radius: 999px; background: #d5d8df; overflow: hidden;
+    }
+    .timer > div {
+      position: absolute; inset: 0 auto 0 0; width: 100%; border-radius: 999px;
+      background: var(--accent-2); transition: background-color .2s;
+    }
+    .timer.low > div { background: var(--bad); }
+    .timer-row { display: flex; align-items: center; gap: 8px; }
+    .timer-row .timer { flex: 1; }
+    .timer-text { font-size: .8rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink2); min-width: 44px; text-align: right; }
+
+    /* ---------- 보드 ---------- */
+    .board-wrap {
+      position: relative; width: var(--board); aspect-ratio: 1 / 1;
+      background: var(--board-bg); border-radius: var(--radius); padding: var(--pad, 10px);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+      touch-action: manipulation; user-select: none; -webkit-user-select: none;
+    }
+    .board {
+      width: 100%; height: 100%;
+      display: grid; gap: var(--gap, 8px);
+      grid-template-columns: repeat(var(--n, 2), 1fr);
+      grid-template-rows: repeat(var(--n, 2), 1fr);
+    }
+    .tile {
+      border: 0; border-radius: var(--tile-r, 14px); cursor: pointer;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      transition: transform .08s ease;
+      position: relative; outline: none;
+    }
+    .tile:focus-visible { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--ink); }
+    @media (hover: hover) { .tile:hover { transform: scale(0.97); } }
+    .tile:active { transform: scale(0.94); }
+    .tile.reveal { box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--good); z-index: 2; animation: pop .5s ease; }
+    .tile.wrong::after {
+      content: '✕'; position: absolute; inset: 0; display: grid; place-items: center;
+      color: #fff; font-weight: 900; font-size: min(48px, calc(var(--board) / var(--n, 2) * 0.42)); text-shadow: 0 1px 4px rgba(0,0,0,.6);
+    }
+    @keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.08); } 100% { transform: scale(1); } }
+    .board-wrap.shake { animation: shake .35s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); }
+      40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); }
+    }
+    .flash {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      background: rgba(20,22,28,.82); color: #fff; padding: 8px 16px; border-radius: 999px;
+      font-weight: 900; font-size: 1.05rem; pointer-events: none; opacity: 0; white-space: nowrap; z-index: 5;
+    }
+    .flash.show { animation: flash .9s ease forwards; }
+    @keyframes flash { 0% { opacity: 0; transform: translate(-50%, -30%); } 15% { opacity: 1; transform: translate(-50%, -50%); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70%); } }
+
+    /* 시작 화면 */
+    .start {
+      position: absolute; inset: 0; border-radius: var(--radius); z-index: 6;
+      background: rgba(28,30,37,.92); color: #fff; padding: clamp(16px, 4vw, 30px);
+      display: flex; flex-direction: column; justify-content: center; gap: 12px; overflow: auto;
+    }
+    .start h2 { font-size: clamp(1.3rem, 4.5vw, 1.8rem); font-weight: 900; letter-spacing: -0.02em; }
+    .start ul { list-style: none; display: grid; gap: 6px; font-size: clamp(.84rem, 2.6vw, .95rem); color: #d9dce4; }
+    .start li::before { content: '▸ '; color: #9aa6ff; }
+    .start .best { font-size: .82rem; color: #aab0bf; }
+    .btn {
+      appearance: none; border: 0; cursor: pointer; border-radius: 12px;
+      padding: 13px 20px; font-size: 1rem; font-weight: 700;
+      background: var(--accent-2); color: #fff; touch-action: manipulation;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+    .note { font-size: .74rem; color: #9ea4b3; }
+
+    /* ---------- 정보 패널 ---------- */
+    .panel { display: grid; gap: 12px; width: 100%; max-width: 540px; }
+    @media (min-width: 940px) { .panel { max-width: none; } }
+    .card {
+      background: var(--card); border-radius: var(--radius); padding: 14px 16px;
+      box-shadow: 0 1px 0 var(--line);
+    }
+    .card h3 { font-size: .95rem; font-weight: 900; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .card h3 .tag { font-size: .7rem; font-weight: 700; color: var(--accent-2); background: #eef0ff; padding: 2px 8px; border-radius: 999px; }
+    .now-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+    .now-grid .k { font-size: .72rem; color: var(--muted); }
+    .now-grid .v { font-size: 1.15rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .formula {
+      margin-top: 10px; padding: 8px 10px; border-radius: 10px; background: #f4f5f8;
+      font-size: .83rem; color: var(--ink2); font-variant-numeric: tabular-nums;
+    }
+    .formula b { color: var(--ink); }
+    .muted { color: var(--muted); font-size: .85rem; }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .sw {
+      border-radius: 12px; overflow: hidden; border: 1px solid var(--line);
+    }
+    .sw .chip { height: 58px; }
+    .sw .chip.split { display: grid; grid-template-columns: 1fr 1fr; }
+    .sw .meta { padding: 7px 9px; font-size: .78rem; font-variant-numeric: tabular-nums; color: var(--ink2); display: grid; gap: 1px; }
+    .sw .meta strong { color: var(--ink); font-size: .82rem; }
+    table.delta { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    table.delta th, table.delta td { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: right; }
+    table.delta th:first-child, table.delta td:first-child { text-align: left; color: var(--ink2); font-weight: 500; }
+    table.delta thead th { font-size: .72rem; color: var(--muted); font-weight: 500; }
+    table.delta tr.hl td { font-weight: 900; color: var(--ink); background: #f6f7ff; }
+    .verdict { margin-top: 8px; font-size: .8rem; font-weight: 700; }
+    .verdict.ok { color: var(--good-text); }
+    .verdict.ng { color: var(--bad); }
+
+    details.learn summary { cursor: pointer; font-weight: 900; font-size: .95rem; list-style: none; }
+    details.learn summary::-webkit-details-marker { display: none; }
+    details.learn summary::before { content: '＋ '; color: var(--accent-2); }
+    details.learn[open] summary::before { content: '－ '; }
+    details.learn .body { margin-top: 8px; font-size: .86rem; color: var(--ink2); display: grid; gap: 8px; }
+    .eq { background: #f4f5f8; border-radius: 10px; padding: 8px 10px; font-family: 'Cambria Math', 'Times New Roman', serif; font-size: 1rem; color: var(--ink); text-align: center; overflow-x: auto; }
+
+    /* ---------- 결과 화면 ---------- */
+    .result {
+      position: fixed; inset: 0; z-index: 50; background: rgba(20,22,28,.6);
+      display: none; align-items: flex-start; justify-content: center; overflow-y: auto;
+      padding: max(14px, env(safe-area-inset-top)) 10px 30px;
+    }
+    .result.open { display: flex; }
+    .sheet {
+      width: min(720px, 100%); background: var(--page); border-radius: 20px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35); animation: rise .35s ease;
+    }
+    @keyframes rise { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .sheet-head { background: var(--accent); color: #fff; padding: 18px 20px 16px; }
+    .sheet-head .kicker { font-size: .8rem; opacity: .7; }
+    .sheet-head h2 { font-size: clamp(1.25rem, 4.5vw, 1.6rem); font-weight: 900; }
+    .sheet-body { padding: 14px; display: grid; gap: 12px; }
+    .hero {
+      background: var(--card); border-radius: var(--radius); padding: 16px; display: grid; gap: 4px; text-align: center;
+    }
+    .hero .k { font-size: .85rem; color: var(--ink2); font-weight: 500; }
+    .hero .num { font-size: clamp(2.6rem, 11vw, 3.6rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+    .hero .num small { font-size: .4em; font-weight: 700; color: var(--ink2); margin-left: 4px; }
+    .hero .desc { font-size: .9rem; font-weight: 700; }
+    .scale { position: relative; margin: 12px 4px 26px; height: 10px; border-radius: 999px;
+      background: linear-gradient(90deg, #2f3a8f 0%, #5b6cff 25%, #9aa6ff 50%, #d3d7f5 75%, #eceef7 100%); }
+    .scale .pin { position: absolute; top: -6px; width: 4px; height: 22px; background: var(--ink); border-radius: 2px; transform: translateX(-50%); }
+    .scale .pin::after { content: attr(data-label); position: absolute; top: 24px; left: 50%; transform: translateX(-50%); font-size: .72rem; font-weight: 900; white-space: nowrap; }
+    .scale .tick { position: absolute; top: 12px; font-size: .66rem; color: var(--muted); transform: translateX(-50%); }
+    .scale-cap { display: flex; justify-content: space-between; font-size: .7rem; color: var(--muted); margin-top: -4px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .stats .card { padding: 10px; text-align: center; }
+    .stats .k { font-size: .7rem; color: var(--muted); }
+    .stats .v { font-size: 1.15rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .stats .v.new::after { content: ' NEW'; font-size: .6rem; color: var(--accent-2); vertical-align: top; }
+    @media (max-width: 520px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+    .chart-wrap { position: relative; }
+    .chart-wrap svg { width: 100%; height: auto; display: block; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: .76rem; color: var(--ink2); margin-bottom: 4px; }
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .tip {
+      position: absolute; pointer-events: none; background: #1d2027; color: #fff; font-size: .76rem;
+      padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px));
+      opacity: 0; transition: opacity .1s; font-variant-numeric: tabular-nums; z-index: 3;
+    }
+    .tip.show { opacity: 1; }
+    details.table summary { cursor: pointer; font-size: .82rem; color: var(--ink2); font-weight: 700; margin-top: 6px; }
+    .tbl-scroll { max-height: 240px; overflow: auto; margin-top: 6px; }
+    .tbl-scroll table { width: 100%; border-collapse: collapse; font-size: .78rem; font-variant-numeric: tabular-nums; }
+    .tbl-scroll th, .tbl-scroll td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: right; }
+    .tbl-scroll th { position: sticky; top: 0; background: var(--card); color: var(--muted); font-weight: 500; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .actions .btn { flex: 1 1 160px; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div>
+        <h1>한 칸의 차이 — 색 민감도 테스트</h1>
+        <p>색차 ΔE로 재는 내 눈의 색 구별 한계</p>
+      </div>
+    </div>
+    <a class="home-link" href="index.html">← 홈</a>
+  </header>
+
+  <main>
+    <!-- ===== 게임 영역 ===== -->
+    <section class="play" aria-label="게임">
+      <div class="hud">
+        <div class="cell"><div class="label">레벨</div><div class="value" id="hudLevel">1</div></div>
+        <div class="cell"><div class="label">점수</div><div class="value" id="hudScore">0</div></div>
+        <div class="cell"><div class="label">목숨</div><div class="value hearts" id="hudLives" aria-label="목숨 3개">❤️❤️❤️</div></div>
+        <div class="cell"><div class="label">최고 레벨</div><div class="value" id="hudBest">-</div></div>
+      </div>
+      <div class="timer-row">
+        <div class="timer" id="timer" role="progressbar" aria-label="남은 시간" aria-valuemin="0" aria-valuemax="100"><div id="timerFill"></div></div>
+        <div class="timer-text" id="timerText">10.0초</div>
+      </div>
+
+      <div class="board-wrap" id="boardWrap">
+        <div class="board" id="board" role="grid" aria-label="색 타일 격자"></div>
+        <div class="flash" id="flash"></div>
+
+        <div class="start" id="start">
+          <h2>다른 색 한 칸을 찾아라!</h2>
+          <ul>
+            <li>같은 색 타일 중 <b>딱 한 칸</b>만 색이 살짝 다릅니다. 그 칸을 누르세요.</li>
+            <li>레벨이 오르면 칸은 <b>2×2 → 8×8</b>로 늘고, 색 차이 <b>ΔE</b>는 점점 작아집니다.</li>
+            <li>틀리거나 시간이 다 되면 <b>목숨 1개</b>가 줄고, 같은 레벨을 새 색으로 다시 풉니다.</li>
+            <li>목숨 3개를 모두 잃으면 끝! 마지막에 <b>내 색 구별 한계 ΔE</b>를 알려 줍니다.</li>
+          </ul>
+          <div class="best" id="startBest"></div>
+          <button class="btn" id="startBtn" type="button">게임 시작</button>
+          <div class="note">※ 화면 밝기·블루라이트 필터·디스플레이 종류에 따라 결과가 달라질 수 있어요. 필터를 끄고 해 보세요.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 수학 패널 ===== -->
+    <aside class="panel" aria-label="색차 수학">
+      <div class="card">
+        <h3>이번 문제 <span class="tag" id="nowTag">대기 중</span></h3>
+        <div class="now-grid">
+          <div><div class="k">격자</div><div class="v" id="nowGrid">2×2</div></div>
+          <div><div class="k">목표 색차 ΔE</div><div class="v" id="nowDE">28.0</div></div>
+          <div><div class="k">찍어서 맞힐 확률</div><div class="v" id="nowProb">1/4</div></div>
+        </div>
+        <div class="formula" id="nowFormula">
+          레벨 n의 목표 색차: <b>ΔE<sub>n</sub> = 28 × 0.84<sup>n−1</sup></b> (지수함수로 감소, 최소 0.6)
+        </div>
+      </div>
+
+      <div class="card" id="lastCard">
+        <h3>직전 문제 분석</h3>
+        <p class="muted" id="lastEmpty">문제를 하나 풀면 두 색의 RGB·HSL·Lab 값과 색 차이가 여기에 나타납니다.</p>
+        <div id="lastBody" hidden>
+          <div class="compare">
+            <div class="sw"><div class="chip" id="lastBaseChip"></div>
+              <div class="meta"><strong>기본 색 (여러 칸)</strong><span id="lastBaseHex"></span></div></div>
+            <div class="sw"><div class="chip" id="lastOddChip"></div>
+              <div class="meta"><strong>다른 색 (한 칸)</strong><span id="lastOddHex"></span></div></div>
+          </div>
+          <table class="delta" aria-label="두 색의 값 비교">
+            <thead><tr><th>값</th><th>기본 색</th><th>다른 색</th><th>차이 Δ</th></tr></thead>
+            <tbody id="lastTable"></tbody>
+          </table>
+          <div class="verdict" id="lastVerdict"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <details class="learn">
+          <summary>ΔE(색차)는 어떻게 계산할까?</summary>
+          <div class="body">
+            <p>RGB는 화면이 빛을 섞는 방식이라, RGB 숫자 차이가 같아도 사람 눈에 보이는 차이는 색마다 다릅니다. 그래서 색을 <b>CIELAB(L*, a*, b*)</b> 공간으로 바꿉니다. L*는 밝기, a*는 초록↔빨강, b*는 파랑↔노랑 축입니다.</p>
+            <div class="eq">ΔE*<sub>ab</sub> = √( (ΔL*)² + (Δa*)² + (Δb*)² )</div>
+            <p>즉 Lab 공간에서 두 점 사이의 <b>거리(피타고라스 정리의 3차원 확장)</b>가 색 차이입니다. 보통 ΔE ≈ 2.3이 사람이 <b>겨우 구별할 수 있는 차이(JND)</b>로 알려져 있어요.</p>
+            <p>이 게임은 무작위 기본색에서 Lab 공간의 <b>무작위 방향 단위벡터</b> u를 골라, 다른 색 = 기본색 + ΔE<sub>n</sub>·u 로 만듭니다. 화면은 RGB를 0~255 정수로만 표현하므로, 반올림 뒤 실제 ΔE를 다시 계산해 보여 줍니다.</p>
+            <p>목표 ΔE는 레벨마다 0.84배씩 줄어드는 <b>등비수열</b>입니다. 결과 그래프의 세로축을 <b>로그 눈금</b>으로 그리면 이 지수함수가 직선처럼 보입니다.</p>
+          </div>
+        </details>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ===== 결과 화면 ===== -->
+  <div class="result" id="result" role="dialog" aria-modal="true" aria-labelledby="resTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="kicker">게임 종료</div>
+        <h2 id="resTitle">내 색 구별 한계</h2>
+      </div>
+      <div class="sheet-body">
+        <div class="hero">
+          <div class="k">추정 색 구별 한계</div>
+          <div class="num" id="resLimit">ΔE 0.0</div>
+          <div class="desc" id="resDesc"></div>
+          <div class="scale" id="resScale" aria-hidden="true"></div>
+          <div class="scale-cap"><span>← 더 예민함</span><span>덜 예민함 →</span></div>
+          <div class="muted" id="resExplain" style="margin-top:6px"></div>
+        </div>
+
+        <div class="stats">
+          <div class="card"><div class="k">도달 레벨</div><div class="v" id="resLevel">1</div></div>
+          <div class="card"><div class="k">점수</div><div class="v" id="resScore">0</div></div>
+          <div class="card"><div class="k">맞힌 문제</div><div class="v" id="resCorrect">0</div></div>
+          <div class="card"><div class="k">평균 반응 시간</div><div class="v" id="resRT">-</div></div>
+        </div>
+
+        <div class="card">
+          <h3>내가 찾아낸 가장 작은 차이</h3>
+          <div id="resBestPair"></div>
+        </div>
+
+        <div class="card">
+          <h3>문제별 색차 ΔE (로그 눈금)</h3>
+          <div class="legend">
+            <span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="#0ca30c" /></svg>맞힘</span>
+            <span><svg width="12" height="12"><path d="M2 2L10 10M10 2L2 10" stroke="#d03b3b" stroke-width="2.5" stroke-linecap="round"/></svg>놓침(오답·시간 초과)</span>
+            <span><svg width="18" height="12"><line x1="0" y1="6" x2="18" y2="6" stroke="#5b6cff" stroke-width="2"/></svg>추정 한계</span>
+            <span><svg width="18" height="12"><line x1="0" y1="6" x2="18" y2="6" stroke="#858a96" stroke-width="1.5"/></svg>JND ≈ 2.3</span>
+          </div>
+          <div class="chart-wrap" id="chartWrap">
+            <svg id="chart" viewBox="0 0 640 260" role="img" aria-label="문제 번호에 따른 색차 그래프"></svg>
+            <div class="tip" id="tip"></div>
+          </div>
+          <details class="table">
+            <summary>표로 보기</summary>
+            <div class="tbl-scroll"><table>
+              <thead><tr><th>#</th><th>레벨</th><th>격자</th><th>ΔE</th><th>RGB 거리</th><th>결과</th><th>시간</th></tr></thead>
+              <tbody id="resTable"></tbody>
+            </table></div>
+          </details>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="againBtn" type="button">다시 하기</button>
+          <button class="btn ghost" id="closeBtn" type="button">기록 닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ================= 색 변환 수학 ================= */
+  const Xn = 0.95047, Yn = 1.0, Zn = 1.08883;           // D65 기준 백색점
+  const EPS = 216 / 24389, KAP = 24389 / 27;
+
+  const toLin = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  const fromLin = c => (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055) * 255;
+
+  function rgbToLab([r, g, b]) {
+    const R = toLin(r), G = toLin(g), B = toLin(b);
+    const X = 0.4124564 * R + 0.3575761 * G + 0.1804375 * B;
+    const Y = 0.2126729 * R + 0.7151522 * G + 0.0721750 * B;
+    const Z = 0.0193339 * R + 0.1191920 * G + 0.9503041 * B;
+    const f = t => (t > EPS ? Math.cbrt(t) : (KAP * t + 16) / 116);
+    const fx = f(X / Xn), fy = f(Y / Yn), fz = f(Z / Zn);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+  }
+  function labToRgbFloat([L, a, b]) {
+    const fy = (L + 16) / 116, fx = fy + a / 500, fz = fy - b / 200;
+    const inv = f => { const f3 = f * f * f; return f3 > EPS ? f3 : (116 * f - 16) / KAP; };
+    const X = Xn * inv(fx), Y = Yn * (L > KAP * EPS ? fy * fy * fy : L / KAP), Z = Zn * inv(fz);
+    const R = 3.2404542 * X - 1.5371385 * Y - 0.4985314 * Z;
+    const G = -0.9692660 * X + 1.8760108 * Y + 0.0415560 * Z;
+    const B = 0.0556434 * X - 0.2040259 * Y + 1.0572252 * Z;
+    return [fromLin(R), fromLin(G), fromLin(B)];
+  }
+  function hslToRgb(h, s, l) {
+    s /= 100; l /= 100;
+    const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return [f(0), f(8), f(4)].map(v => Math.round(v * 255));
+  }
+  function rgbToHsl([r, g, b]) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    let h = 0; const l = (max + min) / 2;
+    const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    if (d !== 0) {
+      if (max === r) h = 60 * (((g - b) / d) % 6);
+      else if (max === g) h = 60 * ((b - r) / d + 2);
+      else h = 60 * ((r - g) / d + 4);
+    }
+    if (h < 0) h += 360;
+    return [h, s * 100, l * 100];
+  }
+  const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]);
+  const deltaE = (c1, c2) => dist(rgbToLab(c1), rgbToLab(c2));
+  const css = c => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  const hex = c => '#' + c.map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase();
+  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+
+  /* ================= 레벨 설계 ================= */
+  const SIZES = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
+  const gridSize = lv => SIZES[Math.min(lv - 1, SIZES.length - 1)];
+  const DE0 = 28, RATIO = 0.84, DE_MIN = 0.6;
+  const targetDE = lv => Math.max(DE_MIN, DE0 * Math.pow(RATIO, lv - 1));
+  const roundTime = lv => 10 + (gridSize(lv) - 2) * 0.5;       // 초
+  const MAX_LIVES = 3;
+
+  // 기본색을 고르고, Lab 공간의 무작위 방향으로 ΔE만큼 떨어진 색을 만든다.
+  function makeColors(target) {
+    let best = null;
+    for (let tries = 0; tries < 400; tries++) {
+      const base = hslToRgb(Math.random() * 360, 25 + Math.random() * 50, 35 + Math.random() * 35);
+      const lab = rgbToLab(base);
+      for (let k = 0; k < 6; k++) {
+        let u = [gauss(), gauss(), gauss()]; const n = Math.hypot(...u); u = u.map(x => x / n);
+        const f = labToRgbFloat([lab[0] + target * u[0], lab[1] + target * u[1], lab[2] + target * u[2]]);
+        if (f.some(v => v < 0 || v > 255)) continue;          // 화면이 표현할 수 없는 색(색역 밖)
+        const odd = f.map(v => Math.round(v));
+        if (odd.every((v, i) => v === base[i])) continue;
+        const de = deltaE(base, odd);
+        const err = Math.abs(de - target) / target;
+        if (!best || err < best.err) best = { base, odd, de, err };
+        if (err < 0.12) return best;
+      }
+    }
+    return best;
+  }
+
+  /* ================= 상태 ================= */
+  const $ = id => document.getElementById(id);
+  const els = {
+    board: $('board'), wrap: $('boardWrap'), flash: $('flash'), start: $('start'),
+    level: $('hudLevel'), score: $('hudScore'), lives: $('hudLives'), best: $('hudBest'),
+    timer: $('timer'), timerFill: $('timerFill'), timerText: $('timerText'),
+  };
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('cst_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('cst_' + k, JSON.stringify(v)); } catch {} },
+  };
+
+  let S = null;            // 게임 상태
+  let rafId = 0;
+
+  function newState() {
+    return { level: 1, score: 0, lives: MAX_LIVES, history: [], round: null, locked: false, playing: false };
+  }
+
+  function updateHud() {
+    els.level.textContent = S.level;
+    els.score.textContent = S.score.toLocaleString('ko-KR');
+    els.lives.innerHTML = Array.from({ length: MAX_LIVES }, (_, i) => `<span class="${i < S.lives ? '' : 'off'}">❤️</span>`).join('');
+    els.lives.setAttribute('aria-label', `목숨 ${S.lives}개`);
+    const bl = store.get('bestLevel', 0);
+    els.best.textContent = bl ? bl : '-';
+  }
+
+  function updateNowPanel() {
+    const lv = S.level, n = gridSize(lv), de = S.round ? S.round.de : targetDE(lv);
+    $('nowTag').textContent = `레벨 ${lv}`;
+    $('nowGrid').textContent = `${n}×${n}`;
+    $('nowDE').textContent = de.toFixed(2);
+    $('nowProb').textContent = `1/${n * n}`;
+    $('nowFormula').innerHTML =
+      `레벨 n의 목표 색차: <b>ΔE<sub>n</sub> = 28 × 0.84<sup>n−1</sup></b><br>` +
+      `레벨 ${lv}: 28 × 0.84<sup>${lv - 1}</sup> ≈ <b>${targetDE(lv).toFixed(2)}</b>` +
+      (S.round ? ` → 정수 RGB로 반올림한 실제 ΔE = <b>${S.round.de.toFixed(2)}</b>` : '');
+  }
+
+  function buildRound() {
+    const lv = S.level, n = gridSize(lv);
+    const c = makeColors(targetDE(lv));
+    const oddIndex = Math.floor(Math.random() * n * n);
+    S.round = { level: lv, n, base: c.base, odd: c.odd, de: c.de, oddIndex, limit: roundTime(lv) * 1000, elapsed: 0, last: performance.now() };
+
+    const wrap = els.wrap;
+    const gap = Math.max(4, Math.round(12 - n * 1.1));
+    wrap.style.setProperty('--n', n);
+    wrap.style.setProperty('--gap', gap + 'px');
+    wrap.style.setProperty('--pad', Math.max(6, gap + 2) + 'px');
+    wrap.style.setProperty('--tile-r', Math.max(5, Math.round(26 / Math.sqrt(n) - 2)) + 'px');
+
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < n * n; i++) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tile';
+      b.dataset.i = i;
+      b.style.background = css(i === oddIndex ? c.odd : c.base);
+      b.setAttribute('aria-label', `${Math.floor(i / n) + 1}행 ${i % n + 1}열`);
+      frag.appendChild(b);
+    }
+    els.board.replaceChildren(frag);
+    S.locked = false;
+    updateNowPanel();
+    updateHud();
+  }
+
+  /* ================= 타이머 ================= */
+  function tick(now) {
+    if (!S || !S.playing) return;
+    const r = S.round;
+    if (!S.locked && !document.hidden) {
+      r.elapsed += Math.min(now - r.last, 100);      // 탭 전환 등으로 크게 튀는 시간은 무시
+    }
+    r.last = now;
+    const left = Math.max(0, r.limit - r.elapsed);
+    const ratio = left / r.limit;
+    els.timerFill.style.width = (ratio * 100).toFixed(2) + '%';
+    els.timer.classList.toggle('low', ratio < 0.3);
+    els.timer.setAttribute('aria-valuenow', Math.round(ratio * 100));
+    els.timerText.textContent = (left / 1000).toFixed(1) + '초';
+    if (left <= 0 && !S.locked) miss(null);
+    rafId = requestAnimationFrame(tick);
+  }
+  document.addEventListener('visibilitychange', () => { if (S && S.round) S.round.last = performance.now(); });
+
+  /* ================= 판정 ================= */
+  function flash(text) {
+    els.flash.textContent = text;
+    els.flash.classList.remove('show'); void els.flash.offsetWidth; els.flash.classList.add('show');
+  }
+  function record(ok, timeout) {
+    const r = S.round;
+    const item = { level: r.level, n: r.n, base: r.base, odd: r.odd, de: r.de, rgbDist: dist(r.base, r.odd), ok, timeout: !!timeout, time: r.elapsed / 1000 };
+    S.history.push(item);
+    showLast(item);
+    return item;
+  }
+
+  function hit() {
+    const r = S.round;
+    S.locked = true;
+    const remain = Math.max(0, r.limit - r.elapsed) / 1000;
+    const gained = r.level * 10 + Math.ceil(remain) * 3;
+    S.score += gained;
+    record(true);
+    els.board.children[r.oddIndex].classList.add('reveal');
+    flash(`정답! +${gained}`);
+    S.level += 1;
+    updateHud();
+    setTimeout(() => S.playing && buildRound(), 450);
+  }
+
+  function miss(tile) {
+    const r = S.round;
+    S.locked = true;
+    S.lives -= 1;
+    record(false, !tile);
+    if (tile) tile.classList.add('wrong');
+    els.board.children[r.oddIndex].classList.add('reveal');
+    els.wrap.classList.remove('shake'); void els.wrap.offsetWidth; els.wrap.classList.add('shake');
+    flash(tile ? `아쉬워요! 목숨 −1` : `시간 초과! 목숨 −1`);
+    updateHud();
+    if (S.lives <= 0) setTimeout(endGame, 1100);
+    else setTimeout(() => S.playing && buildRound(), 1100);
+  }
+
+  els.board.addEventListener('click', e => {
+    const t = e.target.closest('.tile');
+    if (!t || !S || !S.playing || S.locked) return;
+    if (+t.dataset.i === S.round.oddIndex) hit(); else miss(t);
+  });
+
+  /* ================= 직전 문제 패널 ================= */
+  function showLast(it) {
+    $('lastEmpty').hidden = true; $('lastBody').hidden = false;
+    $('lastBaseChip').style.background = css(it.base);
+    $('lastOddChip').style.background = css(it.odd);
+    $('lastBaseHex').textContent = hex(it.base);
+    $('lastOddHex').textContent = hex(it.odd);
+    const h1 = rgbToHsl(it.base), h2 = rgbToHsl(it.odd);
+    const l1 = rgbToLab(it.base), l2 = rgbToLab(it.odd);
+    let dh = h2[0] - h1[0]; if (dh > 180) dh -= 360; if (dh < -180) dh += 360;
+    const sg = v => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v);
+    const sgf = (v, d = 1) => { const s = Math.abs(v).toFixed(d); return (+s === 0 ? '±' : v > 0 ? '+' : '−') + s; };
+    const rows = [
+      ['R', it.base[0], it.odd[0], sg(it.odd[0] - it.base[0])],
+      ['G', it.base[1], it.odd[1], sg(it.odd[1] - it.base[1])],
+      ['B', it.base[2], it.odd[2], sg(it.odd[2] - it.base[2])],
+      ['RGB 거리', '', '', it.rgbDist.toFixed(2)],
+      ['H(색상)', h1[0].toFixed(1) + '°', h2[0].toFixed(1) + '°', sgf(dh) + '°'],
+      ['S(채도)', h1[1].toFixed(1) + '%', h2[1].toFixed(1) + '%', sgf(h2[1] - h1[1]) + '%p'],
+      ['L(명도)', h1[2].toFixed(1) + '%', h2[2].toFixed(1) + '%', sgf(h2[2] - h1[2]) + '%p'],
+      ['L*', l1[0].toFixed(2), l2[0].toFixed(2), sgf(l2[0] - l1[0], 2)],
+      ['a*', l1[1].toFixed(2), l2[1].toFixed(2), sgf(l2[1] - l1[1], 2)],
+      ['b*', l1[2].toFixed(2), l2[2].toFixed(2), sgf(l2[2] - l1[2], 2)],
+    ];
+    $('lastTable').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('') +
+      `<tr class="hl"><td>색차 ΔE*ab</td><td colspan="3">√(ΔL*² + Δa*² + Δb*²) = <b>${it.de.toFixed(2)}</b></td></tr>`;
+    const v = $('lastVerdict');
+    v.className = 'verdict ' + (it.ok ? 'ok' : 'ng');
+    v.textContent = it.ok
+      ? `✔ 레벨 ${it.level} · ${it.n}×${it.n} 격자에서 ${it.time.toFixed(1)}초 만에 찾았어요.`
+      : `✕ 레벨 ${it.level} · ${it.timeout ? '시간 초과' : '오답'} — 색차 ${it.de.toFixed(2)}에서 놓쳤어요.`;
+  }
+
+  /* ================= 결과 분석 ================= */
+  function analyze(h) {
+    const ok = h.filter(x => x.ok), ng = h.filter(x => !x.ok);
+    const best = ok.length ? ok.reduce((a, b) => (b.de < a.de ? b : a)) : null;
+    let limit;
+    if (!best) limit = Math.max(...h.map(x => x.de));                 // 하나도 못 맞힘
+    else {
+      const harder = ng.filter(x => x.de <= best.de * 1.0001).map(x => x.de);
+      // 맞힌 가장 작은 ΔE와, 그보다 어려워서 놓친 ΔE들의 기하평균 → 계단식(staircase) 추정
+      limit = harder.length ? Math.sqrt(best.de * Math.exp(harder.reduce((s, d) => s + Math.log(d), 0) / harder.length)) : best.de;
+    }
+    return { ok, ng, best, limit };
+  }
+  function describe(limit) {
+    if (limit < 1) return ['사람 눈의 한계에 가까운 놀라운 감각!', '#2f3a8f'];
+    if (limit < 2.3) return ['아주 예민해요 — 평균적인 JND(≈2.3)보다 작은 차이도 구별', '#3d4cc4'];
+    if (limit < 4) return ['좋아요 — 자세히 보면 구별되는 수준의 차이를 찾아냄', '#4a58d9'];
+    if (limit < 8) return ['보통 — 한눈에 보이는 차이는 잘 찾아요', '#55606f'];
+    return ['연습이 필요해요 — 화면 밝기를 올리고 다시 도전!', '#55606f'];
+  }
+
+  function endGame() {
+    S.playing = false;
+    cancelAnimationFrame(rafId);
+    const A = analyze(S.history);
+    const reached = Math.max(...S.history.map(x => x.level));
+    const prevBestLv = store.get('bestLevel', 0), prevBestScore = store.get('bestScore', 0), prevBestLimit = store.get('bestLimit', null);
+    const newLv = reached > prevBestLv, newScore = S.score > prevBestScore, newLimit = A.best && (prevBestLimit === null || A.limit < prevBestLimit);
+    if (newLv) store.set('bestLevel', reached);
+    if (newScore) store.set('bestScore', S.score);
+    if (newLimit) store.set('bestLimit', +A.limit.toFixed(3));
+
+    $('resLimit').innerHTML = `ΔE ${A.best ? A.limit.toFixed(2) : '>' + A.limit.toFixed(1)}<small>${newLimit ? '최고 기록!' : ''}</small>`;
+    const [desc, col] = A.best ? describe(A.limit) : ['첫 문제부터 놓쳤어요. 다시 도전해 볼까요?', '#55606f'];
+    $('resDesc').textContent = desc; $('resDesc').style.color = col;
+
+    // 눈금자: 로그 스케일 0.5 ~ 30
+    const lo = Math.log(0.5), hi = Math.log(30);
+    const pos = v => Math.min(100, Math.max(0, (Math.log(v) - lo) / (hi - lo) * 100));
+    $('resScale').innerHTML = [0.5, 1, 2.3, 5, 10, 30].map(v => `<span class="tick" style="left:${pos(v)}%">${v}</span>`).join('') +
+      `<span class="pin" style="left:${pos(A.limit)}%" data-label="나"></span>`;
+    $('resExplain').innerHTML = A.best
+      ? `맞힌 가장 작은 색차 <b>${A.best.de.toFixed(2)}</b>와 그보다 작아서 놓친 색차들의 <b>기하평균</b>으로 추정했어요.` +
+        (prevBestLimit !== null && !newLimit ? ` (내 최고 기록: ΔE ${(+prevBestLimit).toFixed(2)})` : '')
+      : '';
+
+    const setStat = (id, val, isNew) => { const e = $(id); e.textContent = val; e.classList.toggle('new', !!isNew); };
+    setStat('resLevel', reached, newLv);
+    setStat('resScore', S.score.toLocaleString('ko-KR'), newScore);
+    setStat('resCorrect', `${A.ok.length}/${S.history.length}`);
+    setStat('resRT', A.ok.length ? (A.ok.reduce((s, x) => s + x.time, 0) / A.ok.length).toFixed(1) + '초' : '-');
+
+    if (A.best) {
+      const b = A.best, d = b.odd.map((v, i) => v - b.base[i]);
+      $('resBestPair').innerHTML = `
+        <div class="compare">
+          <div class="sw"><div class="chip split"><div style="background:${css(b.base)}"></div><div style="background:${css(b.odd)}"></div></div>
+            <div class="meta"><strong>레벨 ${b.level} · ${b.n}×${b.n}</strong><span>${hex(b.base)} ↔ ${hex(b.odd)}</span></div></div>
+          <div class="sw" style="padding:10px;font-size:.84rem;font-variant-numeric:tabular-nums;color:var(--ink2);display:grid;gap:3px;align-content:center">
+            <div>ΔRGB = (${d.map(v => (v > 0 ? '+' : '') + v).join(', ')})</div>
+            <div>RGB 거리 = ${b.rgbDist.toFixed(2)} <span class="muted">(최대 441.67)</span></div>
+            <div><b style="color:var(--ink)">ΔE*ab = ${b.de.toFixed(2)}</b></div>
+          </div>
+        </div>
+        <p class="muted" style="margin-top:8px">왼쪽 띠의 두 색은 RGB 각 성분이 0~255 중 겨우 ${Math.max(...d.map(Math.abs))} 이하만 다릅니다. 255단계 중 약 ${(Math.max(...d.map(Math.abs)) / 255 * 100).toFixed(1)}% 차이예요.</p>`;
+    } else {
+      $('resBestPair').innerHTML = '<p class="muted">아직 맞힌 문제가 없어요.</p>';
+    }
+
+    drawChart(S.history, A);
+    $('resTable').innerHTML = S.history.map((x, i) =>
+      `<tr><td>${i + 1}</td><td>${x.level}</td><td>${x.n}×${x.n}</td><td>${x.de.toFixed(2)}</td><td>${x.rgbDist.toFixed(1)}</td>` +
+      `<td style="color:${x.ok ? 'var(--good-text)' : 'var(--bad)'}">${x.ok ? '● 맞힘' : x.timeout ? '✕ 시간 초과' : '✕ 오답'}</td><td>${x.time.toFixed(1)}초</td></tr>`).join('');
+
+    $('result').classList.add('open');
+    $('result').scrollTop = 0;
+    $('againBtn').focus({ preventScroll: true });
+    updateHud();
+    showStartScreen(true);
+  }
+
+  /* ================= 결과 그래프 (SVG) ================= */
+  function drawChart(h, A) {
+    const svg = $('chart'), W = 640, H = 260, m = { l: 44, r: 16, t: 14, b: 34 };
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const dmin = Math.min(0.5, ...h.map(x => x.de)), dmax = Math.max(30, ...h.map(x => x.de));
+    const ly0 = Math.log10(dmin), ly1 = Math.log10(dmax);
+    const X = i => m.l + (h.length === 1 ? pw / 2 : (i / (h.length - 1)) * pw);
+    const Y = v => m.t + (1 - (Math.log10(v) - ly0) / (ly1 - ly0)) * ph;
+    const ticks = [0.5, 1, 2, 5, 10, 20].filter(v => v >= dmin && v <= dmax);
+    let g = '';
+    ticks.forEach(v => {
+      g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e1e0d9" stroke-width="1"/>`;
+      g += `<text x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="#858a96">${v}</text>`;
+    });
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${m.t + ph}" y2="${m.t + ph}" stroke="#c3c2b7" stroke-width="1"/>`;
+    const step = Math.max(1, Math.ceil(h.length / 10));
+    h.forEach((_, i) => { if (i % step === 0 || i === h.length - 1) g += `<text x="${X(i)}" y="${H - 14}" text-anchor="middle" font-size="11" fill="#858a96">${i + 1}</text>`; });
+    g += `<text x="${m.l + pw / 2}" y="${H - 1}" text-anchor="middle" font-size="11" fill="#858a96">문제 번호</text>`;
+    g += `<text x="12" y="${m.t + ph / 2}" text-anchor="middle" font-size="11" fill="#858a96" transform="rotate(-90 12 ${m.t + ph / 2})">ΔE</text>`;
+    // 기준선
+    g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(2.3)}" y2="${Y(2.3)}" stroke="#858a96" stroke-width="1.5"/>`;
+    g += `<text x="${W - m.r}" y="${Y(2.3) - 5}" text-anchor="end" font-size="10.5" fill="#4d5260">JND 2.3</text>`;
+    if (A.best) {
+      g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(A.limit)}" y2="${Y(A.limit)}" stroke="#5b6cff" stroke-width="2"/>`;
+      g += `<text x="${m.l + 6}" y="${Y(A.limit) + (A.limit > 2.3 ? -6 : 14)}" font-size="10.5" font-weight="700" fill="#1d2027">내 한계 ${A.limit.toFixed(2)}</text>`;
+    }
+    // 목표 ΔE 곡선(지수함수 → 로그 눈금에서 직선)
+    const pts = h.map((x, i) => `${X(i).toFixed(1)},${Y(targetDE(x.level)).toFixed(1)}`).join(' ');
+    g += `<polyline points="${pts}" fill="none" stroke="#c9cdf7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    // 점
+    h.forEach((x, i) => {
+      const cx = X(i), cy = Y(x.de);
+      g += `<g class="pt" data-i="${i}">`;
+      g += `<circle cx="${cx}" cy="${cy}" r="12" fill="transparent"/>`;
+      g += x.ok
+        ? `<circle cx="${cx}" cy="${cy}" r="5" fill="#0ca30c" stroke="#fff" stroke-width="2"/>`
+        : `<path d="M${cx - 5} ${cy - 5}L${cx + 5} ${cy + 5}M${cx + 5} ${cy - 5}L${cx - 5} ${cy + 5}" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M${cx - 5} ${cy - 5}L${cx + 5} ${cy + 5}M${cx + 5} ${cy - 5}L${cx - 5} ${cy + 5}" stroke="#d03b3b" stroke-width="2.5" stroke-linecap="round"/>`;
+      g += `</g>`;
+    });
+    svg.innerHTML = g;
+
+    const tip = $('tip'), wrap = $('chartWrap');
+    const show = el => {
+      const i = +el.dataset.i, x = h[i];
+      const rect = svg.getBoundingClientRect(), k = rect.width / W;
+      tip.innerHTML = `#${i + 1} · 레벨 ${x.level} (${x.n}×${x.n})<br>ΔE ${x.de.toFixed(2)} · ${x.ok ? '맞힘 ' + x.time.toFixed(1) + '초' : x.timeout ? '시간 초과' : '오답'}`;
+      const px = X(i) * k, py = Y(x.de) * k;
+      tip.style.left = Math.min(rect.width - 70, Math.max(70, px)) + 'px';
+      tip.style.top = py + 'px';
+      tip.classList.add('show');
+    };
+    svg.querySelectorAll('.pt').forEach(el => {
+      el.addEventListener('pointerenter', () => show(el));
+      el.addEventListener('pointerdown', () => show(el));
+      el.addEventListener('pointerleave', () => tip.classList.remove('show'));
+    });
+    wrap.addEventListener('pointerleave', () => tip.classList.remove('show'));
+  }
+
+  /* ================= 시작/재시작 ================= */
+  function showStartScreen(after) {
+    const bl = store.get('bestLevel', 0), bs = store.get('bestScore', 0), bL = store.get('bestLimit', null);
+    $('startBest').textContent = bl ? `내 최고 기록 — 레벨 ${bl} · 점수 ${bs.toLocaleString('ko-KR')}${bL !== null ? ` · 한계 ΔE ${(+bL).toFixed(2)}` : ''}` : '';
+    $('startBtn').textContent = after ? '다시 하기' : '게임 시작';
+    els.start.hidden = false;
+  }
+  function startGame() {
+    $('result').classList.remove('open');
+    els.start.hidden = true;
+    S = newState();
+    S.playing = true;
+    $('lastEmpty').hidden = false; $('lastBody').hidden = true;
+    buildRound();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(t => { S.round.last = t; tick(t); });
+  }
+
+  $('startBtn').addEventListener('click', startGame);
+  $('againBtn').addEventListener('click', startGame);
+  $('closeBtn').addEventListener('click', () => $('result').classList.remove('open'));
+  $('result').addEventListener('click', e => { if (e.target.id === 'result') $('result').classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') $('result').classList.remove('open'); });
+
+  // 초기 화면: 미리보기용 2×2 보드
+  S = newState();
+  buildRound();
+  showStartScreen(false);
+  els.timerText.textContent = roundTime(1).toFixed(1) + '초';
+})();
+</script>
+</body>
+</html>

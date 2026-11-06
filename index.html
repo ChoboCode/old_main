@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인공지능 수학 웹앱 | AI·수학 체험 학습</title>
+    
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="인공지능 수학 웹앱 | AI·수학 체험 학습">
+    <meta name="description" content="텍스트 분석, 단어 임베딩, 이미지 처리, 행렬과 머신러닝 원리를 직접 체험하는 무료 인공지능 수학 웹앱입니다. 중·고등학생과 교사를 위한 AI 학습 활동을 제공합니다.">
+    <meta name="keywords" content="인공지능 수학 웹앱, 인공지능 텍스트 분석, 텍스트 분석 웹앱, 단어 임베딩, 코사인 유사도, AI 수학, 머신러닝, 행렬, 이미지 분석, 수학 교육">
+    <meta name="author" content="황성현">
+    <meta name="robots" content="index, follow">
+    <meta name="google-site-verification" content="s7dTY3TNe-PjxGrl--MTPXDXJcgD2V7_6MDZ4SoEDP8">
+    <meta name="naver-site-verification" content="c020330e12eea0ae1a607097941a61b11590df69">
+    <link rel="canonical" href="https://tjdgus1121.github.io/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tjdgus1121.github.io/">
+    <meta property="og:title" content="인공지능 수학 웹앱 | AI·수학 체험 학습">
+    <meta property="og:description" content="텍스트 분석, 단어 임베딩, 이미지 처리, 행렬과 머신러닝 원리를 직접 체험하는 무료 인공지능 수학 웹앱입니다.">
+    <meta property="og:site_name" content="인공지능 수학 웹앱">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:image" content="https://tjdgus1121.github.io/indeximagemain.png">
+    <meta property="og:image:alt" content="인공지능 수학 웹앱 이미지 분석 체험 화면">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://tjdgus1121.github.io/">
+    <meta property="twitter:title" content="인공지능 수학 웹앱 | AI·수학 체험 학습">
+    <meta property="twitter:description" content="텍스트 분석, 단어 임베딩, 이미지 처리, 행렬과 머신러닝 원리를 직접 체험하는 무료 인공지능 수학 웹앱입니다.">
+    <meta property="twitter:image" content="https://tjdgus1121.github.io/indeximagemain.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "인공지능 수학 웹앱",
+      "alternateName": ["AI Mathematics", "AI 수학 탐구"],
+      "url": "https://tjdgus1121.github.io/",
+      "author": {
+        "@type": "Person",
+        "name": "황성현"
+      },
+      "description": "텍스트 분석, 단어 임베딩, 이미지 처리, 행렬과 머신러닝 원리를 직접 조작하며 배우는 무료 인공지능 수학 체험 학습 사이트.",
+      "hasPart": {
+        "@type": "WebApplication",
+        "name": "인공지능 텍스트 분석 웹앱",
+        "alternateName": "AI 단어 유사도 탐색기",
+        "url": "https://tjdgus1121.github.io/word2vec/",
+        "applicationCategory": "EducationalApplication",
+        "isAccessibleForFree": true
+      }
+    }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Do Hyeon', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* 우주 배경 */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #0a0a1a 25%, #0d1117 50%, #1a0f2e 75%, #0a0a12 100%);
+            background-size: 400% 400%;
+            animation: spaceFloat 20s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes spaceFloat {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 별 애니메이션 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite, warpSpeed 3s linear infinite;
+            animation-fill-mode: backwards, backwards;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+        }
+
+        .star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        /* 고정된 별 (멀리 있는 별) */
+        .star.fixed {
+            animation: twinkleFixed 4s infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.6);
+            opacity: 0.4;
+        }
+
+        .star.fixed::after {
+            display: none;
+        }
+
+        /* 거대하게 빛나는 별 */
+        .star.giant {
+            animation: giantTwinkle 6s infinite ease-in-out;
+            box-shadow: 
+                0 0 40px rgba(255, 255, 255, 1),
+                0 0 80px rgba(200, 220, 255, 0.8),
+                0 0 120px rgba(150, 180, 255, 0.6),
+                0 0 160px rgba(100, 150, 255, 0.4);
+            opacity: 0.9;
+            background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(200, 220, 255, 0.8) 50%, transparent 100%);
+        }
+
+        .star.giant::after {
+            display: none;
+        }
+
+        .star.giant::before {
+            display: none;
+        }
+
+        /* 십자 빛 효과 (1개만) */
+        .star.giant.cross::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            display: block;
+        }
+
+        .star.giant.cross::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            width: 120px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            display: block;
+        }
+
+        /* 타원형 빛 효과 (2개) - radial-gradient 방식 */
+        .star.giant.oval::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(var(--scale, 1));
+            width: 280px;
+            height: 220px;
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.95), transparent 5%),
+                radial-gradient(ellipse at 50% 50%, rgba(245, 250, 255, 0.85), transparent 10%),
+                radial-gradient(ellipse at 50% 50%, rgba(235, 245, 255, 0.7), transparent 15%),
+                radial-gradient(ellipse at 50% 50%, rgba(225, 240, 255, 0.55), transparent 20%),
+                radial-gradient(ellipse at 50% 50%, rgba(215, 235, 255, 0.45), transparent 25%),
+                radial-gradient(ellipse at 50% 50%, rgba(205, 230, 250, 0.35), transparent 30%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 230, 200, 0.23), transparent 40%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 220, 180, 0.16), transparent 52%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 210, 160, 0.09), transparent 68%);
+            mix-blend-mode: screen;
+            opacity: 0.9;
+            display: block;
+            filter: blur(1.5px);
+        }
+
+        .star.giant.oval::after {
+            display: none;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes twinkleFixed {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes giantTwinkle {
+            0%, 100% { 
+                opacity: 0.8;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes warpSpeed {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* 뇌 신경망 효과 */
+        .neural-network {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: containerFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes containerFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* 타이틀 */
+        .title {
+            text-align: center;
+            color: white;
+            margin-bottom: 60px;
+        }
+
+        .title h1 {
+            font-size: 5rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #7b68ee, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: flickerOn 2s ease-out forwards;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        .title p {
+            font-size: 1.4rem;
+            color: #b0c4de;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: fadeInDown 1s ease-out 2s forwards;
+        }
+
+        /* 형광등 깜빡임 애니메이션 */
+        @keyframes flickerOn {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            10.1% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+            }
+            10.2% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            20% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            20.1% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                            0 0 60px rgba(123, 104, 238, 0.6);
+            }
+            20.6% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            30% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            30.1% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                            0 0 60px rgba(123, 104, 238, 0.6);
+            }
+            30.5% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                            0 0 60px rgba(123, 104, 238, 0.6);
+            }
+            30.6% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            45% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            45.1% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                            0 0 60px rgba(123, 104, 238, 0.6),
+                            0 0 90px rgba(123, 104, 238, 0.4);
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.9),
+                            0 0 60px rgba(123, 104, 238, 0.7),
+                            0 0 90px rgba(123, 104, 238, 0.5);
+            }
+            55% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.9),
+                            0 0 60px rgba(123, 104, 238, 0.7),
+                            0 0 90px rgba(123, 104, 238, 0.5);
+            }
+            55.1% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            57% {
+                opacity: 0;
+                text-shadow: none;
+            }
+            57.1% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 0.9),
+                            0 0 60px rgba(123, 104, 238, 0.7),
+                            0 0 90px rgba(123, 104, 238, 0.5);
+            }
+            60% {
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 1),
+                            0 0 60px rgba(123, 104, 238, 0.8),
+                            0 0 100px rgba(123, 104, 238, 0.6);
+            }
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+                            0 0 40px rgba(123, 104, 238, 0.4);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 카드 컨테이너 */
+        .cards-wrapper {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+        }
+
+        .card-container {
+            width: 400px;
+            height: 500px;
+            perspective: 1000px;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .card-container.show {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .card-container:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: cardFloat 6s ease-in-out infinite;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .card-container:nth-child(1) .card {
+            animation-delay: 0s;
+        }
+
+        .card-container:nth-child(2) .card {
+            animation-delay: 1s;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+            }
+            33% {
+                transform: translateY(-8px) translateX(4px);
+            }
+            66% {
+                transform: translateY(4px) translateX(-4px);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-10px) !important;
+            box-shadow: 0 12px 48px rgba(123, 104, 238, 0.4);
+            border-color: rgba(123, 104, 238, 0.5);
+        }
+
+        /* 카드 공통 스타일 */
+        .card {
+            padding: 20px;
+        }
+
+        .card .image-wrapper {
+            width: 100%;
+            height: 280px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        }
+
+        .card .image-wrapper img,
+        .card .image-wrapper .icon {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .card .image-wrapper .icon {
+            font-size: 8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            object-fit: unset;
+        }
+
+        .card:hover .image-wrapper img,
+        .card:hover .image-wrapper .icon {
+            transform: scale(1.1);
+        }
+
+        .card h3 {
+            color: white;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .card p {
+            color: #b0c4de;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .card .access-button {
+            display: block;
+            width: 100%;
+            padding: 14px 30px;
+            text-align: center;
+            color: white;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 텍스트 분석 버튼 - 블루 글래스 */
+        .card-container:nth-child(1) .access-button {
+            background: rgba(74, 158, 255, 0.2);
+            border: 1px solid rgba(74, 158, 255, 0.5);
+        }
+
+        .card-container:nth-child(1) .access-button:hover {
+            background: rgba(74, 158, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(74, 158, 255, 0.3);
+        }
+
+        /* 이미지 분석 버튼 - 퍼플 글래스 */
+        .card-container:nth-child(2) .access-button {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+        }
+
+        .card-container:nth-child(2) .access-button:hover {
+            background: rgba(139, 92, 246, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+
+        /* 첫 화면은 그대로 두고, 스크롤 아래에서 학습 내용과 전체 활동을 안내한다. */
+        .learning-guide {
+            width: min(1100px, calc(100% - 40px));
+            margin: 30px auto 130px;
+            padding: 36px;
+            color: #eaf2ff;
+            background: rgba(10, 15, 38, 0.82);
+            border: 1px solid rgba(176, 196, 222, 0.24);
+            border-radius: 24px;
+            box-shadow: 0 16px 55px rgba(0, 0, 0, 0.34);
+            backdrop-filter: blur(14px);
+        }
+
+        .learning-guide h2 {
+            margin-bottom: 14px;
+            color: #ffffff;
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            font-weight: 500;
+        }
+
+        .learning-guide > p {
+            color: #c3d1e6;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 1rem;
+            line-height: 1.9;
+            word-break: keep-all;
+        }
+
+        .activity-directory {
+            margin-top: 26px;
+            border: 1px solid rgba(123, 104, 238, 0.42);
+            border-radius: 18px;
+            background: rgba(123, 104, 238, 0.10);
+            overflow: hidden;
+        }
+
+        .activity-directory summary {
+            padding: 18px 22px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1.15rem;
+            list-style: none;
+            user-select: none;
+        }
+
+        .activity-directory summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .activity-directory summary::after {
+            content: "＋";
+            float: right;
+            color: #9fdcff;
+        }
+
+        .activity-directory[open] summary::after {
+            content: "－";
+        }
+
+        .activity-groups {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            padding: 0 22px 22px;
+        }
+
+        .activity-group {
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.11);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-group h3 {
+            margin-bottom: 12px;
+            color: #d7cbff;
+            font-size: 1.12rem;
+            font-weight: 500;
+        }
+
+        .activity-group ul {
+            display: grid;
+            gap: 9px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .activity-group a {
+            color: #c9e8ff;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            text-decoration: none;
+        }
+
+        .activity-group a:hover,
+        .activity-group a:focus-visible {
+            color: #ffffff;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .title h1 {
+                font-size: clamp(2rem, 8vw, 3rem);
+            }
+
+            .title p {
+                font-size: 1.1rem;
+            }
+
+            .card-container {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .cards-wrapper {
+                gap: 30px;
+            }
+
+            .learning-guide {
+                width: min(100% - 24px, 1100px);
+                margin-top: 16px;
+                padding: 24px 18px;
+            }
+
+            .activity-groups {
+                grid-template-columns: 1fr;
+                padding: 0 14px 16px;
+            }
+        }
+
+
+        /* 활동지 안내 (왼쪽 아래 고정) */
+        .sheet-dock {
+            position: fixed;
+            left: 20px;
+            bottom: 84px;
+            z-index: 200;
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .sheet-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            min-height: 44px;
+            border: 1px solid rgba(123, 104, 238, 0.55);
+            border-radius: 999px;
+            background: rgba(16, 16, 34, 0.92);
+            backdrop-filter: blur(10px);
+            color: #e8e6ff;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .sheet-toggle:hover {
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        .sheet-toggle:focus-visible {
+            outline: 2px solid #00d4ff;
+            outline-offset: 3px;
+        }
+
+        .sheet-toggle .sheet-caret {
+            font-size: 0.78rem;
+            opacity: 0.8;
+            transition: transform 0.2s;
+        }
+
+        .sheet-dock.open .sheet-toggle .sheet-caret { transform: rotate(180deg); }
+
+        .sheet-panel {
+            width: 258px;
+            max-width: calc(100vw - 40px);
+            padding: 16px 18px 18px;
+            border: 1px solid rgba(123, 104, 238, 0.35);
+            border-radius: 16px;
+            background: rgba(13, 13, 28, 0.94);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.5);
+            order: -1;
+        }
+
+        .sheet-dock:not(.open) .sheet-panel { display: none; }
+
+        .sheet-panel h3 {
+            margin: 0 0 6px;
+            font-family: 'Do Hyeon', sans-serif;
+            font-size: 1.08rem;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #7b68ee, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sheet-panel p {
+            margin: 0 0 12px;
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+
+        .sheet-links { display: flex; flex-direction: column; gap: 8px; }
+
+        .sheet-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 13px;
+            min-height: 44px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: border-color 0.2s, background 0.2s, transform 0.2s;
+        }
+
+        .sheet-link:hover {
+            border-color: rgba(0, 212, 255, 0.7);
+            background: rgba(0, 212, 255, 0.12);
+            transform: translateX(3px);
+        }
+
+        .sheet-link:focus-visible {
+            outline: 2px solid #00d4ff;
+            outline-offset: 2px;
+        }
+
+        .sheet-link .sheet-ico { font-size: 1.05rem; }
+        .sheet-link .sheet-go { margin-left: auto; opacity: 0.55; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .sheet-dock { left: 14px; bottom: 96px; }
+            .sheet-panel { width: 236px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sheet-toggle, .sheet-link, .sheet-toggle .sheet-caret { transition: none; }
+            .sheet-toggle:hover, .sheet-link:hover { transform: none; }
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .visitor-count {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .visitor-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .visitor-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        .visitor-number {
+            color: #fff;
+            font-weight: 500;
+            font-size: 1rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* 오늘 방문자는 초록 형광색 */
+        #todayCount {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .visitor-divider {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+        }
+
+        .copyright {
+            opacity: 0.6;
+        }
+
+        .email-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .email-link:hover {
+            color: #00ff88;
+            opacity: 1;
+        }
+
+        .naver-logo {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 10px;
+                font-size: 0.85rem;
+            }
+
+            .visitor-count {
+                gap: 10px;
+            }
+
+            .visitor-item {
+                padding: 6px 12px;
+            }
+
+            .email-link {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 업데이트 팝업 */
+        .patch-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .patch-overlay.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .patch-popup {
+            background: rgba(15, 15, 35, 0.95);
+            border: 1px solid rgba(123, 104, 238, 0.4);
+            border-radius: 20px;
+            padding: 50px 61px;
+            max-width: 748px;
+            width: 92%;
+            box-shadow:
+                0 0 40px rgba(123, 104, 238, 0.3),
+                0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: popupSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popupSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .patch-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(123, 104, 238, 0.25);
+        }
+
+        .patch-badge {
+            background: linear-gradient(135deg, #7b68ee, #00d4ff);
+            color: white;
+            font-size: 1.0rem;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .patch-title {
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 500;
+        }
+
+        .patch-date {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.05rem;
+            margin-left: auto;
+        }
+
+        .patch-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .patch-list li {
+            display: flex;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .patch-list li .patch-num {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            background: rgba(123, 104, 238, 0.25);
+            border: 1px solid rgba(123, 104, 238, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.94rem;
+            color: #a78bfa;
+            margin-top: 2px;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .patch-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .patch-no-show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.1rem;
+            transition: color 0.2s;
+            -webkit-user-select: none;
+            user-select: none;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .patch-no-show:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .patch-no-show input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #7b68ee;
+            cursor: pointer;
+        }
+
+        .patch-close-btn {
+            padding: 12px 37px;
+            background: linear-gradient(135deg, rgba(123, 104, 238, 0.3), rgba(0, 212, 255, 0.2));
+            border: 1px solid rgba(123, 104, 238, 0.5);
+            color: white;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .patch-close-btn:hover {
+            background: linear-gradient(135deg, rgba(123, 104, 238, 0.5), rgba(0, 212, 255, 0.35));
+            box-shadow: 0 5px 20px rgba(123, 104, 238, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .patch-body {
+            max-height: 440px;
+            overflow-y: auto;
+            margin-bottom: 28px;
+            padding-right: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(123, 104, 238, 0.4) transparent;
+        }
+
+        .patch-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .patch-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .patch-body::-webkit-scrollbar-thumb {
+            background: rgba(123, 104, 238, 0.4);
+            border-radius: 2px;
+        }
+
+        .patch-section {
+            margin-bottom: 22px;
+        }
+
+        .patch-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .patch-section-date {
+            color: #a78bfa;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid rgba(123, 104, 238, 0.2);
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .patch-loading {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.0rem;
+            text-align: center;
+            padding: 20px 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .patch-popup {
+                padding: 25px 22px;
+            }
+            .patch-footer {
+                flex-direction: column-reverse;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 업데이트 안내 팝업 -->
+    <div class="patch-overlay hidden" id="patchOverlay">
+        <div class="patch-popup">
+            <div class="patch-header">
+                <span class="patch-badge">UPDATE</span>
+                <span class="patch-title">기능 개선 안내</span>
+            </div>
+            <div class="patch-body" id="patchBody">
+                <div class="patch-loading">불러오는 중...</div>
+            </div>
+            <div class="patch-footer">
+                <label class="patch-no-show">
+                    <input type="checkbox" id="patchNoShow">
+                    일주일간 확인 안하기
+                </label>
+                <button type="button" class="patch-close-btn" id="patchCloseBtn">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 우주 배경 -->
+    <div class="space-background"></div>
+    <div class="stars" id="stars"></div>
+    <canvas class="neural-network" id="neuralCanvas"></canvas>
+
+    <!-- 메인 컨테이너 -->
+    <main class="main-container">
+        <div class="title">
+            <h1>인공지능 수학 웹앱</h1>
+            <p>인공지능 속 수학 원리를 직접 조작하고 실험하며 배워봅시다.</p>
+        </div>
+
+        <div class="cards-wrapper">
+            <!-- 텍스트 분석 카드 -->
+            <div class="card-container">
+                <a class="card" href="https://tjdgus1121.github.io/word2vec/" aria-label="텍스트 분석 인공지능 수학 활동으로 이동">
+                    <div class="image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=400&h=300&fit=crop" alt="인공지능 텍스트 분석과 수학 체험">
+                    </div>
+                    <h3>텍스트 분석</h3>
+                    <p>인공지능을 활용한 맞춤형 텍스트 분석으로 개념을 이해하고 문제 해결 능력을 키워보세요.</p>
+                    <span class="access-button">접속하기</span>
+                </a>
+            </div>
+
+            <!-- 이미지 분석 카드 -->
+            <div class="card-container">
+            <a class="card" href="./indeximage.html" aria-label="이미지 분석 인공지능 수학 활동으로 이동">
+                    <div class="image-wrapper">
+                        <img src="./indeximagemain.png" style="opacity:0.7" alt="인공지능 이미지 분석과 행렬 수학 체험">
+                    </div>
+                    <h3>이미지 분석</h3>
+                    <p>수학적 개념을 시각적으로 탐구하고 이미지 분석 기술을 학습합니다.</p>
+                    <span class="access-button">접속하기</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <section class="learning-guide" aria-labelledby="learning-guide-title">
+        <h2 id="learning-guide-title">직접 체험하며 이해하는 인공지능 수학</h2>
+        <p>
+            이 인공지능 수학 웹앱은 중·고등학생과 교사가 행렬, 픽셀, 색상 채널, 거리와 유사도,
+            보간, 회전 변환, 합성곱 신경망의 원리를 브라우저에서 직접 조작하며 탐구할 수 있도록
+            구성한 무료 교육 사이트입니다. 이미지를 숫자 행렬로 바꾸고, 손글씨를 인식시키며,
+            필터와 변환 결과를 비교하는 과정에서 인공지능이 데이터를 표현하고 판단하는 수학적
+            방법을 자연스럽게 확인할 수 있습니다. 별도 프로그램 설치 없이 활동을 선택해 수업,
+            수행평가, 개인 탐구에 활용할 수 있으며 각 체험은 구체적인 수학 개념과 연결됩니다.
+        </p>
+
+        <details class="activity-directory">
+            <summary>전체 인공지능 수학 체험 활동 보기</summary>
+            <nav class="activity-groups" aria-label="인공지능 수학 체험 활동">
+                <section class="activity-group">
+                    <h3>입문과 데이터 표현</h3>
+                    <ul>
+                        <li><a href="./activity1_intro.html">패턴을 행렬로 표현하기</a></li>
+                        <li><a href="./activity2_matrix_extract.html">이미지 데이터 행렬 추출</a></li>
+                        <li><a href="./activity3_rgb_explore.html">RGB 색상과 행렬 탐구</a></li>
+                        <li><a href="./activity4_rgb_channels.html">RGB 이미지 채널 분리</a></li>
+                        <li><a href="./activity10_hamming_distance.html">손글씨 숫자의 28×28 행렬</a></li>
+                    </ul>
+                </section>
+                <section class="activity-group">
+                    <h3>행렬과 이미지 연산</h3>
+                    <ul>
+                        <li><a href="./activity5_image_merge.html">픽셀 데이터 결합과 이미지 합성</a></li>
+                        <li><a href="./activity6_composite_explore.html">이미지 블렌딩 행렬 시각화</a></li>
+                        <li><a href="./activity7_matrix_product.html">행렬 곱셈 시각화</a></li>
+                        <li><a href="./activity7_matrix_product2.html">이미지로 배우는 행렬 변환</a></li>
+                        <li><a href="./activity8_rotation_matrix.html">좌표와 회전 행렬 탐구</a></li>
+                        <li><a href="./activity12_interpolation.html">이미지 보간법 비교</a></li>
+                        <li><a href="./activity17_kernel.html">컨볼루션 커널 필터 체험</a></li>
+                    </ul>
+                </section>
+                <section class="activity-group">
+                    <h3>인공지능 모델 체험</h3>
+                    <ul>
+                        <li><a href="./activity11_similarity_check.html">해밍 거리와 데이터 유사도</a></li>
+                        <li><a href="./activity9_mnist_recognizer.html">MNIST 손글씨 숫자 인식</a></li>
+                        <li><a href="./activity17_cnn_visualizer.html">CNN 합성곱 신경망 시각화</a></li>
+                        <li><a href="./activity18_cnn_ex.html">CNN 사물 인식 원리 체험</a></li>
+                        <li><a href="./activity18_home.html">CNN 이미지 인식 체험 모음</a></li>
+                        <li><a href="./activity18_nukki.html">CNN·U-Net 배경 제거 원리</a></li>
+                        <li><a href="./activity14_yolo.html">YOLO 실시간 객체 탐지</a></li>
+                    </ul>
+                </section>
+                <section class="activity-group">
+                    <h3>생성·복원과 알고리즘</h3>
+                    <ul>
+                        <li><a href="./activity13_realesrgan.html">Real-ESRGAN 이미지 고해상도 복원</a></li>
+                        <li><a href="./activity15_styletransper.html">인공지능 스타일 전이</a></li>
+                        <li><a href="./activity16_Arbitrary_transfer.html">임의 화풍 변환 실험</a></li>
+                    </ul>
+                </section>
+            </nav>
+        </details>
+    </section>
+
+    <!-- Footer -->
+    <!-- 활동지 안내 -->
+    <div class="sheet-dock" id="sheetDock">
+        <div class="sheet-panel" id="sheetPanel">
+            <h3>활동지 안내</h3>
+            <p>수업에서 함께 쓰는 활동지입니다. 새 창에서 열립니다.</p>
+            <div class="sheet-links">
+                <a class="sheet-link" href="https://naver.me/x52YwUVl" target="_blank" rel="noopener noreferrer">
+                    <span class="sheet-ico" aria-hidden="true">📝</span>텍스트 활동지<span class="sheet-go" aria-hidden="true">↗</span>
+                </a>
+                <a class="sheet-link" href="https://naver.me/FvT0f4m2" target="_blank" rel="noopener noreferrer">
+                    <span class="sheet-ico" aria-hidden="true">🖼️</span>이미지 활동지<span class="sheet-go" aria-hidden="true">↗</span>
+                </a>
+            </div>
+        </div>
+        <button type="button" class="sheet-toggle" id="sheetToggle" aria-expanded="false" aria-controls="sheetPanel">
+            <span aria-hidden="true">📄</span>활동지<span class="sheet-caret" aria-hidden="true">▾</span>
+        </button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="visitor-count">
+                <div class="visitor-item">
+                    <span class="visitor-label">오늘</span>
+                    <span class="visitor-number" id="todayCount">-</span>
+                </div>
+                <span class="visitor-divider">|</span>
+                <div class="visitor-item">
+                    <span class="visitor-label">총 방문자</span>
+                    <span class="visitor-number" id="totalCount">-</span>
+                </div>
+            </div>
+            <div class="copyright">© 2025 인공지능 수학 | 황성현</div>
+            <a href="mailto:tjdgus1121@naver.com" class="email-link">
+                <svg class="naver-logo" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"/>
+                </svg>
+                tjdgus1121@naver.com
+            </a>
+        </div>
+    </div>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1GG5zh4s0loWOkgOvEaohlai6ReW5U5U",
+            authDomain: "aimath-visitor.firebaseapp.com",
+            databaseURL: "https://aimath-visitor-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "aimath-visitor",
+            storageBucket: "aimath-visitor.firebasestorage.app",
+            messagingSenderId: "538785315085",
+            appId: "1:538785315085:web:bffab1a7aba5ef342c9844"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // 오늘 날짜 가져오기 (YYYY-MM-DD)
+        function getTodayDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        const todayDate = getTodayDate();
+        const totalRef = ref(database, 'visitors/total');
+        const todayRef = ref(database, `visitors/daily/${todayDate}`);
+        
+        // 방문자 수 증가
+        const sessionKey = 'ai_math_visited';
+        const todayKey = 'ai_math_visited_date';
+        const hasVisited = sessionStorage.getItem(sessionKey);
+        const lastVisitDate = localStorage.getItem(todayKey);
+        
+        // 오늘 처음 방문인지 확인
+        const isFirstVisitToday = lastVisitDate !== todayDate;
+        
+        if (!hasVisited) {
+            // 세션 첫 방문이면 총 방문자 증가
+            get(totalRef).then((snapshot) => {
+                const currentTotal = snapshot.val() || 0;
+                set(totalRef, currentTotal + 1);
+            }).catch((error) => {
+                console.error('총 방문자 증가 오류:', error);
+            });
+            
+            sessionStorage.setItem(sessionKey, 'true');
+        }
+        
+        if (isFirstVisitToday) {
+            // 오늘 첫 방문이면 오늘 방문자 증가
+            get(todayRef).then((snapshot) => {
+                const currentToday = snapshot.val() || 0;
+                set(todayRef, currentToday + 1);
+            }).catch((error) => {
+                console.error('오늘 방문자 증가 오류:', error);
+            });
+            
+            localStorage.setItem(todayKey, todayDate);
+        }
+        
+        // 실시간 총 방문자 수 표시
+        onValue(totalRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            document.getElementById('totalCount').textContent = count.toLocaleString();
+        }, (error) => {
+            console.error('총 방문자 읽기 오류:', error);
+            document.getElementById('totalCount').textContent = '-';
+        });
+        
+        // 실시간 오늘 방문자 수 표시
+        onValue(todayRef, (snapshot) => {
+            const count = snapshot.val() || 0;
+            document.getElementById('todayCount').textContent = count.toLocaleString();
+        }, (error) => {
+            console.error('오늘 방문자 읽기 오류:', error);
+            document.getElementById('todayCount').textContent = '-';
+        });
+    </script>
+
+    <script>
+        // 별 생성
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const movingStars = 150; // 움직이는 별
+            const fixedStars = 200;  // 고정된 별 (멀리 있는 별)
+
+            // 거대하게 빛나는 별 생성 (십자가 1개, 타원형 2개)
+            // 십자가 빛 별 1개
+            const crossStar = document.createElement('div');
+            crossStar.className = 'star giant cross';
+            const crossSize = 5 + Math.random() * 2;
+            crossStar.style.width = crossSize + 'px';
+            crossStar.style.height = crossSize + 'px';
+            crossStar.style.left = (25 + Math.random() * 50) + '%';
+            crossStar.style.top = (25 + Math.random() * 50) + '%';
+            crossStar.style.animationDuration = (5 + Math.random() * 3) + 's';
+            crossStar.style.animationDelay = Math.random() * 2 + 's';
+            starsContainer.appendChild(crossStar);
+
+            // 타원형 빛 별 2개 (크기 다르게, 멀리 배치)
+            for (let i = 0; i < 2; i++) {
+                const ovalStar = document.createElement('div');
+                ovalStar.className = 'star giant oval';
+                const ovalSize = 4 + Math.random() * 3;
+                ovalStar.style.width = ovalSize + 'px';
+                ovalStar.style.height = ovalSize + 'px';
+                
+                // 첫 번째는 왼쪽 영역, 두 번째는 오른쪽 영역에 배치
+                if (i === 0) {
+                    ovalStar.style.left = (10 + Math.random() * 25) + '%'; // 10%~35%
+                    ovalStar.style.top = (20 + Math.random() * 50) + '%';
+                    ovalStar.style.setProperty('--scale', '1');
+                } else {
+                    ovalStar.style.left = (65 + Math.random() * 25) + '%'; // 65%~90%
+                    ovalStar.style.top = (25 + Math.random() * 45) + '%';
+                    ovalStar.style.setProperty('--scale', '0.7');
+                }
+                
+                ovalStar.style.animationDuration = (5 + Math.random() * 3) + 's';
+                ovalStar.style.animationDelay = Math.random() * 3 + 's';
+                
+                starsContainer.appendChild(ovalStar);
+            }
+
+            // 고정된 별 생성 (멀리 있어서 움직이지 않음)
+            for (let i = 0; i < fixedStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star fixed';
+                
+                const size = Math.random() * 2 + 0.5; // 작은 크기
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                const twinkleDuration = 3 + Math.random() * 3; // 3~6초
+                star.style.animationDuration = twinkleDuration + 's';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                
+                starsContainer.appendChild(star);
+            }
+
+            // 움직이는 별 생성 (가까이 있어서 움직임)
+            for (let i = 0; i < movingStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 3 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // 화면 중앙 영역의 여러 곳에서 시작 (30%~70% 범위)
+                const startX = 30 + Math.random() * 40; // 30% ~ 70%
+                const startY = 30 + Math.random() * 40; // 30% ~ 70%
+                star.style.left = startX + '%';
+                star.style.top = startY + '%';
+                
+                // 시작점에서 바깥으로 향하는 방향 계산
+                const centerX = 50;
+                const centerY = 50;
+                const dx = startX - centerX;
+                const dy = startY - centerY;
+                const angle = Math.atan2(dy, dx);
+                
+                // 이동 거리
+                const distance = 150 + Math.random() * 100; // 150~250
+                
+                const tx = Math.cos(angle) * distance + 'vw';
+                const ty = Math.sin(angle) * distance + 'vh';
+                
+                star.style.setProperty('--tx', tx);
+                star.style.setProperty('--ty', ty);
+                
+                // 속도를 더 느리게 조정 (8~15초)
+                const duration = 8 + Math.random() * 7; // 8~15초
+                const delay = Math.random() * 8; // 0~8초
+                
+                star.style.animationDuration = `${3 + Math.random() * 2}s, ${duration}s`;
+                star.style.animationDelay = `${Math.random() * 4}s, ${delay}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 신경망 그리기
+        function drawNeuralNetwork() {
+            const canvas = document.getElementById('neuralCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const nodes = [];
+            const numberOfNodes = 50;
+
+            // 노드 생성
+            for (let i = 0; i < numberOfNodes; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.2,
+                    vy: (Math.random() - 0.5) * 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 노드 업데이트 및 그리기
+                nodes.forEach((node, i) => {
+                    node.x += node.vx;
+                    node.y += node.vy;
+
+                    if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                    if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+                    // 연결선 그리기
+                    nodes.forEach((otherNode, j) => {
+                        if (i !== j) {
+                            const dx = node.x - otherNode.x;
+                            const dy = node.y - otherNode.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < 150) {
+                                ctx.strokeStyle = `rgba(123, 104, 238, ${1 - distance / 150})`;
+                                ctx.lineWidth = 1;
+                                ctx.beginPath();
+                                ctx.moveTo(node.x, node.y);
+                                ctx.lineTo(otherNode.x, otherNode.y);
+                                ctx.stroke();
+                            }
+                        }
+                    });
+
+                    // 노드 그리기
+                    ctx.fillStyle = 'rgba(123, 104, 238, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        // 카드 나타내기
+        function showCards() {
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.card-container');
+                cards.forEach(card => card.classList.add('show'));
+            }, 2000);
+        }
+
+        // 윈도우 리사이즈 처리
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('neuralCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // 업데이트 팝업
+        (function() {
+            const PATCH_KEY = 'patch_hide_until';
+            const PATCH_VER_KEY = 'patch_hide_ver';
+            const overlay = document.getElementById('patchOverlay');
+            const closeBtn = document.getElementById('patchCloseBtn');
+            const noShowChk = document.getElementById('patchNoShow');
+            const patchBody = document.getElementById('patchBody');
+            const now = Date.now();
+
+            // patch.txt 파싱: [YYYY-MM-DD] 섹션별로 분리
+            function parsePatch(text) {
+                const lines = text.split('\n');
+                const sections = [];
+                let current = null;
+                for (const line of lines) {
+                    const dateMatch = line.match(/^\[(\d{4}-\d{2}-\d{2})\]/);
+                    if (dateMatch) {
+                        current = { date: dateMatch[1], items: [] };
+                        sections.push(current);
+                    } else if (current) {
+                        const trimmed = line.trim();
+                        const itemMatch = trimmed.match(/^\d+\.\s*(.+)/);
+                        if (itemMatch) current.items.push(itemMatch[1]);
+                    }
+                }
+                return sections;
+            }
+
+            // 날짜 섹션을 HTML로 렌더링
+            function renderPatch(sections) {
+                if (!sections.length) {
+                    patchBody.innerHTML = '<div class="patch-loading">업데이트 내역이 없습니다.</div>';
+                    return;
+                }
+                patchBody.innerHTML = sections.map(sec => `
+                    <div class="patch-section">
+                        <div class="patch-section-date">${sec.date}</div>
+                        <ul class="patch-list">
+                            ${sec.items.map((item, i) => `
+                                <li>
+                                    <span class="patch-num">${i + 1}</span>
+                                    <span>${item}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+            }
+
+            function setupPopup(latestVersion) {
+                const hideUntil = localStorage.getItem(PATCH_KEY);
+                const hiddenVersion = localStorage.getItem(PATCH_VER_KEY);
+                if (hiddenVersion !== latestVersion || !hideUntil || now > parseInt(hideUntil)) {
+                    overlay.classList.remove('hidden');
+                }
+            }
+
+            function closePopup() {
+                if (noShowChk.checked) {
+                    const version = patchBody.dataset.latestVersion || '';
+                    localStorage.setItem(PATCH_KEY, now + 7 * 24 * 60 * 60 * 1000);
+                    localStorage.setItem(PATCH_VER_KEY, version);
+                }
+                overlay.classList.add('hidden');
+            }
+
+            closeBtn.addEventListener('click', closePopup);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closePopup();
+            });
+
+            // patch.txt fetch
+            fetch('./patch.txt?v=' + Date.now())
+                .then(r => r.text())
+                .then(text => {
+                    const sections = parsePatch(text);
+                    renderPatch(sections);
+                    const latestVersion = sections.length ? sections[0].date : 'unknown';
+                    patchBody.dataset.latestVersion = latestVersion;
+                    setupPopup(latestVersion);
+                })
+                .catch(() => {
+                    patchBody.innerHTML = '<div class="patch-loading">내용을 불러올 수 없습니다.</div>';
+                    setupPopup('unknown');
+                });
+        })();
+
+
+        // 활동지 안내 — 열고 닫기, 푸터 높이만큼 띄우기
+        (function () {
+            var dock = document.getElementById('sheetDock');
+            var toggle = document.getElementById('sheetToggle');
+            var footer = document.querySelector('.footer');
+            if (!dock || !toggle) return;
+            var KEY = 'sheet_dock_closed';
+
+            function setOpen(open) {
+                dock.classList.toggle('open', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            var open = false;
+            try { open = localStorage.getItem(KEY) === '0'; } catch (e) {}
+            setOpen(open);
+
+            toggle.addEventListener('click', function () {
+                var open = !dock.classList.contains('open');
+                setOpen(open);
+                try { localStorage.setItem(KEY, open ? '0' : '1'); } catch (e) {}
+            });
+
+            function place() {
+                if (!footer) return;
+                dock.style.bottom = (footer.offsetHeight + 14) + 'px';
+            }
+            place();
+            window.addEventListener('resize', place);
+            window.addEventListener('load', place);
+        })();
+
+        // 초기화
+        createStars();
+        drawNeuralNetwork();
+        showCards();
+    </script>
+</body>
+</html>
